@@ -4,6 +4,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from time import sleep
 from selenium.common.exceptions import TimeoutException
+import pandas as pd
+import numpy as np
 
 browser=webdriver.Chrome()
 wait=WebDriverWait(browser, 5)
@@ -37,16 +39,28 @@ def get_products():
     t = browser.find_element_by_xpath('//*[@id="settlementList"]/table/tbody/tr/td/table/tbody')  # 定位表格
     table_rows = len(t.find_elements_by_tag_name('tr'))
     table_cols = len((t.find_elements_by_tag_name('tr'))[0].find_elements_by_tag_name('td'))
-    for rows in range(1,table_rows):
-        for cols in range(1,table_cols):
-            # print({'b':(rows+1,1),'c':(1, cols+1),'d':(rows+1, cols+1)})
-            b = browser.find_element_by_css_selector('#settlementList > table > tbody > tr > td > table > tbody > tr:nth-child({}) > td:nth-child({}) > p'.format(rows+1,1))
-            c = browser.find_element_by_css_selector(
-            '#settlementList > table > tbody > tr > td > table > tbody > tr:nth-child({}) > td:nth-child({}) > p'.format(1, cols+1))
-            d = browser.find_element_by_css_selector(
-            '#settlementList > table > tbody > tr > td > table > tbody > tr:nth-child({}) > td:nth-child({}) > p'.format(rows+1, cols+1))
-            e={b.text+'/'+c.text:d.text}
-            print(e)
+
+    list=[]
+    for rows in range(1, table_rows+1):
+        for cols in range(1, table_cols + 1):
+            b = browser.find_element_by_css_selector('#settlementList>table>tbody>tr>td>table>tbody>tr:nth-child({})>td:nth-child({})>p'.format(rows,cols))
+            list.append(b.text)
+    print(list)
+    m=np.array(list)
+    m=m.reshape(table_rows,table_cols)
+    df=pd.DataFrame(m,columns=m[0])
+    df=df.drop([0])
+    print(df)
+
+    # for rows in range(1,table_rows+1):
+        # for cols in range(1,table_cols+1):
+            # b = browser.find_element_by_css_selector('#settlementList > table > tbody > tr > td > table > tbody > tr:nth-child({}) > td:nth-child({}) > p'.format(rows+1,1))
+            # c = browser.find_element_by_css_selector(
+            # '#settlementList > table > tbody > tr > td > table > tbody > tr:nth-child({}) > td:nth-child({}) > p'.format(1, cols+1))
+            # d = browser.find_element_by_css_selector(
+            # '#settlementList > table > tbody > tr > td > table > tbody > tr:nth-child({}) > td:nth-child({}) > p'.format(rows+1, cols+1))
+            # e={b.text+'/'+c.text:d.text}
+            # print(e)
 
 def next_page():
     try:
