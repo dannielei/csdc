@@ -33,8 +33,7 @@ def search():
         return search()
 
 def get_products():
-    a = browser.find_element_by_css_selector('body > div.SettlementTitle > h2')  # 定位时间区间
-    print(a.text)
+    a = (browser.find_element_by_css_selector('body > div.SettlementTitle > h2')).text # 定位时间区间
 
     t = browser.find_element_by_xpath('//*[@id="settlementList"]/table/tbody/tr/td/table/tbody')  # 定位表格
     table_rows = len(t.find_elements_by_tag_name('tr'))
@@ -45,12 +44,16 @@ def get_products():
         for cols in range(1, table_cols + 1):
             b = browser.find_element_by_css_selector('#settlementList>table>tbody>tr>td>table>tbody>tr:nth-child({})>td:nth-child({})>p'.format(rows,cols))
             list.append(b.text)
-    print(list)
     m=np.array(list)
     m=m.reshape(table_rows,table_cols)
+    m=m.T
     df=pd.DataFrame(m,columns=m[0])
     df=df.drop([0])
-    print(df)
+    b_loc = a.index('（') + 1
+    e_loc = a.index('）')
+    text = a[b_loc:e_loc]
+    df['date']=text
+    df.to_csv(r'C:\Users\jasper\Desktop\1.csv',encoding = 'gbk',mode='a')
 
     # for rows in range(1,table_rows+1):
         # for cols in range(1,table_cols+1):
@@ -78,7 +81,7 @@ def main():
     search()
     sleep(2)
     print('click next page: 1')
-    for i in range(2,2):
+    for i in range(2,4):
         check = next_page()
         if not check:
             break
